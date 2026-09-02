@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router";
 import {
@@ -12,7 +9,6 @@ import {
   Search,
   ArrowRight,
   Zap,
-  Tag,
   Star,
 } from "lucide-react";
 
@@ -46,23 +42,18 @@ const DEALS_OF_DAY = [
   },
 ];
 
+const TRENDING_PRODUCTS = [
+  { id: "1", name: "Wireless Headphones", price: 1299, originalPrice: 2499, rating: 4.5, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop" },
+  { id: "2", name: "Cotton T-Shirt", price: 399, originalPrice: 799, rating: 4.2, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&h=200&fit=crop" },
+  { id: "3", name: "Smart Watch", price: 2499, originalPrice: 4999, rating: 4.7, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop" },
+  { id: "4", name: "Running Shoes", price: 1599, originalPrice: 3299, rating: 4.4, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop" },
+  { id: "5", name: "Backpack", price: 899, originalPrice: 1799, rating: 4.3, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop" },
+  { id: "6", name: "Sunglasses", price: 499, originalPrice: 1299, rating: 4.1, image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop" },
+];
+
 export default function DashboardHome() {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  const ensureWallet = useMutation(api.wallet.ensure);
-  const wallet = useQuery(api.wallet.get);
-  const linkedAccounts = useQuery(api.linkedAccounts.list);
-  const offerHunts = useQuery(api.offerHunts.list);
-  const products = useQuery(api.products.list, {});
-
-  useEffect(() => {
-    if (isAuthenticated) ensureWallet();
-  }, [ensureWallet, isAuthenticated]);
-
-  const activeAccount = linkedAccounts?.find(
-    (a) => a.status === "verified",
-  );
-  const recentHunt = offerHunts?.[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,9 +66,7 @@ export default function DashboardHome() {
             </div>
             <div>
               <p className="text-sm font-medium">
-                {activeAccount?.phone
-                  ? `+91 ${activeAccount.phone}`
-                  : user?.email || "Guest"}
+                {isAuthenticated ? (user?.name || "User") : "Guest"}
               </p>
             </div>
           </div>
@@ -89,13 +78,22 @@ export default function DashboardHome() {
               <Search className="h-3.5 w-3.5" />
               <span className="text-xs">Search</span>
             </button>
-            <button
-              onClick={() => navigate("/dashboard/account")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/15 transition-colors"
-            >
-              <span className="text-xs">💰</span>
-              ₹{wallet?.balance ?? 0}
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => navigate("/dashboard/account")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--meesho-green)]/10 text-[var(--meesho-green)] text-sm font-medium hover:bg-[var(--meesho-green)]/15 transition-colors"
+              >
+                <span className="text-xs">💰</span>
+                <span className="text-xs">₹0</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/auth")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--meesho-pink)] text-white text-sm font-medium hover:bg-[var(--meesho-pink)]/90 transition-colors shadow-sm"
+              >
+                <span className="text-xs">Sign In</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -275,145 +273,64 @@ export default function DashboardHome() {
         </div>
 
         {/* Trending Products */}
-        {products && products.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-[var(--meesho-pink)]" />
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Trending Now
-                </p>
-              </div>
-              <button
-                onClick={() => navigate("/dashboard/search")}
-                className="text-xs text-[var(--meesho-pink)] hover:text-[var(--meesho-pink-light)]"
-              >
-                View All
-              </button>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-[var(--meesho-pink)]" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Trending Now
+              </p>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
-              {products.slice(0, 6).map((product) => (
-                <button
-                  key={product._id}
-                  onClick={() =>
-                    navigate(`/dashboard/product/${product._id}`)
-                  }
-                  className="flex-shrink-0 w-32 rounded-xl bg-card border border-border/50 overflow-hidden text-left hover:border-border transition-all"
-                >
-                  <div className="aspect-square bg-muted">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-2">
-                    <p className="text-xs font-medium line-clamp-2">
-                      {product.name}
-                    </p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs font-bold">
-                        ₹{product.price}
+            <button
+              onClick={() => navigate("/dashboard/search")}
+              className="text-xs text-[var(--meesho-pink)] hover:text-[var(--meesho-pink-light)]"
+            >
+              View All
+            </button>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+            {TRENDING_PRODUCTS.map((product) => (
+              <button
+                key={product.id}
+                onClick={() =>
+                  navigate(`/dashboard/product/${product.id}`)
+                }
+                className="flex-shrink-0 w-32 rounded-xl bg-card border border-border/50 overflow-hidden text-left hover:border-border transition-all"
+              >
+                <div className="aspect-square bg-muted">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-2">
+                  <p className="text-xs font-medium line-clamp-2">
+                    {product.name}
+                  </p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className="text-xs font-bold">
+                      ₹{product.price}
+                    </span>
+                    {product.originalPrice && (
+                      <span className="text-[10px] text-muted-foreground line-through">
+                        ₹{product.originalPrice}
                       </span>
-                      {product.originalPrice && (
-                        <span className="text-[10px] text-muted-foreground line-through">
-                          ₹{product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    {product.rating && (
-                      <div className="flex items-center gap-0.5 mt-1">
-                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                        <span className="text-[10px] text-muted-foreground">
-                          {product.rating}
-                        </span>
-                      </div>
                     )}
                   </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Active Account Status */}
-        {linkedAccounts && linkedAccounts.length > 0 && (
-          <div className="animate-fade-in bg-card rounded-2xl p-4 border border-border/50">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Linked Accounts
-            </p>
-            <div className="space-y-2">
-              {linkedAccounts.slice(0, 3).map((acc) => (
-                <div
-                  key={acc._id}
-                  className="flex items-center justify-between p-3 bg-muted/30 rounded-xl"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        acc.status === "verified"
-                          ? "bg-[#038D63] shadow-sm shadow-[#038D63]/50"
-                          : acc.status === "pending"
-                            ? "bg-[#F4B619]"
-                            : "bg-[#E11900]"
-                      }`}
-                    />
-                    <div>
-                      <p className="text-sm font-medium capitalize">
-                        {acc.platform}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        •••{acc.phone.slice(-4)}
-                      </p>
+                  {product.rating && (
+                    <div className="flex items-center gap-0.5 mt-1">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-[10px] text-muted-foreground">
+                        {product.rating}
+                      </span>
                     </div>
-                  </div>
-                  <span
-                    className={`text-[11px] font-medium capitalize px-2 py-0.5 rounded-full ${
-                      acc.status === "verified"
-                        ? "bg-[#038D63]/10 text-[#038D63]"
-                        : acc.status === "pending"
-                          ? "bg-[#F4B619]/10 text-[#F4B619]"
-                          : "bg-[#E11900]/10 text-[#E11900]"
-                    }`}
-                  >
-                    {acc.status}
-                  </span>
+                  )}
                 </div>
-              ))}
-            </div>
+              </button>
+            ))}
           </div>
-        )}
-
-        {/* Recent Hunt */}
-        {recentHunt && (
-          <button
-            onClick={() => navigate("/dashboard/offer-hunt")}
-            className="w-full animate-fade-in bg-card rounded-2xl p-4 border border-border/50 text-left hover:border-border transition-all group"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                  Latest Offer Hunt
-                </p>
-                <p className="text-sm font-medium">
-                  Target: ₹{recentHunt.targetDiscount} · Best:
-                  ₹{recentHunt.bestDiscount}
-                </p>
-              </div>
-              <span
-                className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-                  recentHunt.status === "success"
-                    ? "bg-[#038D63]/10 text-[#038D63]"
-                    : recentHunt.status === "fallback"
-                      ? "bg-[#F4B619]/10 text-[#F4B619]"
-                      : "bg-[#9F2089]/10 text-[#9F2089]"
-                }`}
-              >
-                {recentHunt.status}
-              </span>
-            </div>
-          </button>
-        )}
+        </div>
 
         {/* Stats row */}
         <div className="grid grid-cols-2 gap-3 stagger-children pb-4">
@@ -426,9 +343,7 @@ export default function DashboardHome() {
                 Wallet Balance
               </p>
             </div>
-            <p className="text-xl font-bold">
-              ₹{wallet?.balance ?? 0}
-            </p>
+            <p className="text-xl font-bold">₹0</p>
           </div>
           <div className="bg-card rounded-2xl p-4 border border-border/50">
             <div className="flex items-center gap-2 mb-2">
@@ -437,9 +352,7 @@ export default function DashboardHome() {
               </div>
               <p className="text-[11px] text-muted-foreground">Accounts</p>
             </div>
-            <p className="text-xl font-bold">
-              {linkedAccounts?.length ?? 0}
-            </p>
+            <p className="text-xl font-bold">0</p>
           </div>
         </div>
       </div>

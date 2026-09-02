@@ -8,8 +8,6 @@ import {
   Gift,
   User,
 } from "lucide-react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 
 const navItems = [
   { path: "/dashboard/search", icon: Search, label: "Search" },
@@ -23,10 +21,13 @@ const navItems = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const cartItems = useQuery(api.cart.list);
 
-  const cartCount =
-    cartItems?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+  // Read cart count from localStorage
+  let cartCount = 0;
+  try {
+    const cart = JSON.parse(localStorage.getItem("shop_cart") || "[]");
+    cartCount = cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+  } catch {}
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/50">
@@ -56,7 +57,7 @@ export function BottomNav() {
                   )}
                 />
                 {item.label === "Cart" && cartCount > 0 && (
-                  <span className="absolute -right-2 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 text-[8px] font-bold text-white px-1 shadow-sm shadow-blue-500/30 z-20">
+                  <span className="absolute -right-2 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[var(--meesho-pink)] text-[8px] font-bold text-white px-1 shadow-sm z-20">
                     {cartCount > 9 ? "9+" : cartCount}
                   </span>
                 )}

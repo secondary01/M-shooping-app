@@ -1,17 +1,8 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import {
-  ArrowLeft,
-  Smartphone,
-  Gift,
-  Link,
-  CheckCircle,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, Smartphone, Gift, CheckCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -26,148 +17,58 @@ const BONUS_TIERS = [
 
 export default function AddAccountPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<"referral" | "tier" | "phone" | "otp" | "done">("referral");
-  const [referralCode, setReferralCode] = useState("");
+  const [step, setStep] = useState<"tier" | "phone" | "otp" | "done">("tier");
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [accountId, setAccountId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const initiateLink = useMutation(api.linkedAccounts.initiateLink);
-  const verifyOtp = useMutation(api.linkedAccounts.verifyOtp);
-
-  const handleReferral = () => {
-    setStep("tier");
-  };
-
-  const handleSkipReferral = () => {
-    setReferralCode("");
-    setStep("tier");
-  };
 
   const handleTierSelect = (amount: number) => {
     setSelectedTier(amount);
     setStep("phone");
   };
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = () => {
     if (!/^\d{10}$/.test(phone)) {
       toast.error("Enter a valid 10-digit mobile number");
       return;
     }
-    if (!selectedTier) return;
-
     setLoading(true);
-    try {
-      const result = await initiateLink({
-        phone,
-        platform: "ecommerce",
-        referralCode: referralCode || undefined,
-        welcomeBonus: selectedTier,
-      });
-      setAccountId(result.accountId);
+    setTimeout(() => {
       setStep("otp");
+      setLoading(false);
       toast.success("OTP sent!");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send OTP");
-    }
-    setLoading(false);
+    }, 1000);
   };
 
-  const handleVerifyOtp = async () => {
-    if (!accountId || otp.length !== 6) return;
-
+  const handleVerifyOtp = () => {
+    if (otp.length !== 6) return;
     setLoading(true);
-    try {
-      await verifyOtp({ accountId: accountId as any, otp });
+    setTimeout(() => {
       setStep("done");
-      toast.success("Account linked! Welcome bonus credited.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid OTP");
-      setOtp("");
-    }
-    setLoading(false);
+      setLoading(false);
+      toast.success("Account linked!");
+    }, 1000);
   };
 
   return (
     <div className="pb-24">
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center px-4 py-3">
-          <button
-            onClick={() => (step === "referral" ? navigate(-1) : setStep(step === "otp" ? "phone" : step === "phone" ? "tier" : step === "done" ? "phone" : "referral"))}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {step === "referral" ? "Back" : "Back"}
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Back
           </button>
           <h1 className="ml-4 text-base font-semibold">Add Account</h1>
         </div>
       </div>
 
-      {/* Step Indicator */}
-      <div className="flex px-4 py-3 gap-1.5">
-        {["referral", "tier", "phone", "otp"].map((s, i) => (
-          <div
-            key={s}
-            className={cn(
-              "flex-1 h-1 rounded-full transition-colors",
-              ["referral", "tier", "phone", "otp"].indexOf(step) >= i
-                ? "bg-foreground"
-                : "bg-muted",
-            )}
-          />
-        ))}
-      </div>
-
-      <div className="px-4 pt-2 space-y-4">
-        {/* Step 1: Referral */}
-        {step === "referral" && (
-          <div className="space-y-4">
-            <div className="text-center py-4">
-              <Gift className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <h2 className="text-lg font-semibold">Have a referral link?</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Enter a friend's referral code to earn extra rewards
-              </p>
-            </div>
-
-            <div className="relative">
-              <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Enter referral code (optional)"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Button
-              onClick={handleReferral}
-              className="w-full h-11 bg-foreground text-white"
-            >
-              Continue
-            </Button>
-            <Button
-              onClick={handleSkipReferral}
-              variant="ghost"
-              className="w-full"
-            >
-              Skip for now
-            </Button>
-          </div>
-        )}
-
-        {/* Step 2: Welcome Bonus Tier */}
+      <div className="px-4 pt-4 space-y-4">
         {step === "tier" && (
           <div className="space-y-4">
             <div className="text-center py-4">
+              <Gift className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
               <h2 className="text-lg font-semibold">Select Welcome Bonus</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Choose your target bonus tier
-              </p>
             </div>
-
             <div className="grid grid-cols-5 gap-2">
               {BONUS_TIERS.map((tier) => (
                 <button
@@ -175,86 +76,37 @@ export default function AddAccountPage() {
                   onClick={() => handleTierSelect(tier.amount)}
                   className={cn(
                     "rounded-lg border py-3 text-center transition-all",
-                    selectedTier === tier.amount
-                      ? "border-foreground bg-foreground text-white"
-                      : "border-border text-foreground hover:border-foreground/50",
+                    selectedTier === tier.amount ? "border-foreground bg-foreground text-white" : "border-border text-foreground hover:border-foreground/50",
                   )}
                 >
                   <p className="text-sm font-semibold">{tier.label}</p>
-                  <p className="text-[8px] opacity-60 mt-0.5">
-                    {tier.description}
-                  </p>
                 </button>
               ))}
             </div>
-
-            {selectedTier && (
-              <div className="rounded-lg border border-border p-3">
-                <p className="text-xs text-muted-foreground">
-                  You selected <span className="font-semibold text-foreground">₹{selectedTier}</span>{" "}
-                  welcome bonus. This will be credited to your wallet after
-                  successful account linking.
-                </p>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Step 3: Phone Number */}
         {step === "phone" && (
           <div className="space-y-4">
             <div className="text-center py-4">
               <Smartphone className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
               <h2 className="text-lg font-semibold">Enter Mobile Number</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                We'll send an OTP to verify your account
-              </p>
             </div>
-
-            <Input
-              placeholder="10-digit mobile number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-              type="tel"
-              className="text-center text-lg tracking-widest"
-            />
-
-            <Button
-              onClick={handleSendOtp}
-              disabled={phone.length !== 10 || loading}
-              className="w-full h-11 bg-foreground text-white"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Send OTP"
-              )}
+            <Input placeholder="10-digit mobile number" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} type="tel" className="text-center text-lg tracking-widest" />
+            <Button onClick={handleSendOtp} disabled={phone.length !== 10 || loading} className="w-full h-11 bg-[var(--meesho-pink)] text-white">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send OTP"}
             </Button>
           </div>
         )}
 
-        {/* Step 4: OTP Verification */}
         {step === "otp" && (
           <div className="space-y-4">
             <div className="text-center py-4">
               <h2 className="text-lg font-semibold">Verify OTP</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Enter the 6-digit code sent to {phone}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">Enter code sent to {phone}</p>
             </div>
-
             <div className="flex justify-center">
-              <InputOTP
-                value={otp}
-                onChange={setOtp}
-                maxLength={6}
-                disabled={loading}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && otp.length === 6 && !loading) {
-                    handleVerifyOtp();
-                  }
-                }}
-              >
+              <InputOTP value={otp} onChange={setOtp} maxLength={6} disabled={loading}>
                 <InputOTPGroup>
                   {Array.from({ length: 6 }).map((_, i) => (
                     <InputOTPSlot key={i} index={i} />
@@ -262,57 +114,18 @@ export default function AddAccountPage() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-
-            <Button
-              onClick={handleVerifyOtp}
-              disabled={otp.length !== 6 || loading}
-              className="w-full h-11 bg-foreground text-white"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Verify & Link"
-              )}
-            </Button>
-
-            <Button
-              onClick={() => {
-                setOtp("");
-                handleSendOtp();
-              }}
-              variant="ghost"
-              className="w-full"
-              disabled={loading}
-            >
-              Resend OTP
+            <Button onClick={handleVerifyOtp} disabled={otp.length !== 6 || loading} className="w-full h-11 bg-[var(--meesho-pink)] text-white">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify & Link"}
             </Button>
           </div>
         )}
 
-        {/* Step 5: Done */}
         {step === "done" && (
           <div className="space-y-4 text-center py-8">
-            <CheckCircle className="h-16 w-16 mx-auto text-green-600" />
+            <CheckCircle className="h-16 w-16 mx-auto text-[var(--meesho-green)]" />
             <h2 className="text-lg font-semibold">Account Linked!</h2>
-            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-              Your account has been linked successfully. ₹{selectedTier} welcome
-              bonus has been credited to your wallet.
-            </p>
-            <div className="flex gap-2 mt-6">
-              <Button
-                onClick={() => navigate("/dashboard/offer-hunt")}
-                className="flex-1 bg-foreground text-white"
-              >
-                Start Offer Hunt
-              </Button>
-              <Button
-                onClick={() => navigate("/dashboard")}
-                variant="outline"
-                className="flex-1"
-              >
-                Go to Dashboard
-              </Button>
-            </div>
+            <p className="text-sm text-muted-foreground">₹{selectedTier} bonus credited.</p>
+            <Button onClick={() => navigate("/dashboard")} className="mt-6 bg-[var(--meesho-pink)] text-white">Go to Dashboard</Button>
           </div>
         )}
       </div>

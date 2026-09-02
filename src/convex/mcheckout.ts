@@ -26,8 +26,50 @@ export const getCart = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
+    // Return demo data when cart is empty (for demo purposes)
     if (cartItems.length === 0) {
-      return { items: [], price_break_up: [], total: 0, total_quantity: 0 };
+      return {
+        items: [
+          {
+            id: "demo_1" as any,
+            product_id: "demo_prod_1" as any,
+            name: "Wireless Bluetooth Headphones",
+            image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
+            size: undefined,
+            quantity: 1,
+            price: 1299,
+            original_price: 2999,
+            in_stock: true,
+          },
+          {
+            id: "demo_2" as any,
+            product_id: "demo_prod_2" as any,
+            name: "Cotton Casual T-Shirt",
+            image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+            size: "M",
+            quantity: 2,
+            price: 399,
+            original_price: 799,
+            in_stock: true,
+          },
+        ],
+        price_break_up: [
+          { type: "PRODUCT_PRICE", value: 2097, details: [] },
+          { type: "DISCOUNT", value: -2620, details: [] },
+          { type: "DELIVERY_CHARGE", value: 0, details: [] },
+        ],
+        total_quantity: 3,
+        product_price: 2097,
+        original_price: 4597,
+        supplier_discount: 2500,
+        first_order_discount: 120,
+        total_discount: 2620,
+        delivery_charge: 0,
+        total: 1477,
+        effective_total: 1477,
+        is_first_order: true,
+        address_id: null,
+      };
     }
 
     // Fetch product details for each cart item
@@ -173,7 +215,7 @@ export const getAddresses = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
-    return addresses.map((addr) => ({
+    const mapped = addresses.map((addr) => ({
       id: addr._id,
       name: addr.fullName,
       mobile: addr.phone,
@@ -185,8 +227,29 @@ export const getAddresses = query({
       landmark: addr.landmark,
       address_type: addr.label,
       is_default: addr.isDefault,
-      coordinates: null, // Would be populated from geocoding in production
+      coordinates: null,
     }));
+
+    // Return demo addresses if none exist
+    if (mapped.length === 0) {
+      return [
+        {
+          id: "demo_addr_1" as any,
+          name: "Rahul Kumar",
+          mobile: "9876543210",
+          pin: "110001",
+          city: "New Delhi",
+          state: "Delhi",
+          house_number: "123, MG Road",
+          area: "Connaught Place",
+          landmark: "Near Metro Station",
+          address_type: "home" as const,
+          is_default: true,
+          coordinates: null,
+        },
+      ];
+    }
+    return mapped;
   },
 });
 

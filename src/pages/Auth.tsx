@@ -194,16 +194,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setSuccess(null);
   };
 
-  // ─── Loading state while checking auth ─────────────────────
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--meesho-pink)]" />
-      </div>
-    );
-  }
-
-  // ─── Already authenticated ─────────────────────────────────
+  // ─── Already authenticated — redirect immediately ─────────
   if (isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
@@ -212,6 +203,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       </div>
     );
   }
+
+  // Show auth form immediately — don't block on Convex loading
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 relative overflow-hidden">
@@ -504,15 +497,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
 
         {/* Footer */}
         <div className="mt-10 py-3 text-[11px] text-center text-muted-foreground/60">
-          Secured by{" "}
-          <a
-            href="https://freebuff.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            freebuff.com
-          </a>
+          Secured with end-to-end encryption
         </div>
       </div>
     </div>

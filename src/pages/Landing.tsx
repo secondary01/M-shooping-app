@@ -134,7 +134,7 @@ export default function Landing() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <ShoppingCart className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight">ShopHub</span>
+            <span className="text-lg font-bold tracking-tight">ShopApp</span>
           </div>
           <div className="flex items-center gap-3">
             <Button
@@ -469,7 +469,7 @@ export default function Landing() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                   <ShoppingCart className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-bold">ShopHub</span>
+                <span className="font-bold">ShopApp</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Your one-stop destination for the best deals on fashion,
@@ -511,7 +511,7 @@ export default function Landing() {
 
           <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-muted-foreground">
-              © 2026 ShopHub. All rights reserved.
+              © 2026 ShopApp. All rights reserved.
             </p>
             <div className="flex gap-4">
               <a
