@@ -2,15 +2,15 @@
  * API Client
  *
  * Centralized HTTP client with:
- *  - Bearer token auth (JWT)
+ *  - Bearer token auth (JWT) — automatically reads token from localStorage
  *  - Automatic retries with exponential backoff
  *  - Request timeout
  *  - Error normalization
  *  - Path param resolution
  *
- * Usage from Convex actions (server-side):
+ * Usage from Convex actions (server-side) or frontend:
  *   import { apiClient } from "../lib/apiClient";
- *   const result = await apiClient.get("/products/search", { query: "shoes" });
+ *   const result = await apiClient.get("/products/search", { query: { q: "shoes" } });
  */
 
 import {
@@ -21,6 +21,7 @@ import {
   RETRY_DELAY_MS,
   resolvePath,
 } from "./apiConfig";
+import { getAccessToken } from "../hooks/use-auth";
 
 // ──────────────────────────────────────────────
 // Types
@@ -29,7 +30,7 @@ import {
 export interface ApiRequestOptions {
   /** Override the base URL for this request */
   baseUrl?: string;
-  /** Bearer token – automatically attached if provided */
+  /** Bearer token – if not provided, will be automatically read from localStorage */
   token?: string;
   /** Extra headers merged into the request */
   headers?: Record<string, string>;
@@ -105,7 +106,7 @@ async function request<T = unknown>(
 ): Promise<ApiResponse<T>> {
   const {
     baseUrl = API_BASE_URL,
-    token,
+    token: explicitToken,
     headers: extraHeaders = {},
     query,
     timeout = API_TIMEOUT_MS,
@@ -113,6 +114,12 @@ async function request<T = unknown>(
     rawBody,
     raw = false,
   } = options;
+
+  // Determine token: explicit token takes precedence; otherwise read from auth hook
+  let token = explicitToken;
+  if (!token) {
+    token = getAccessToken(); // reads from localStorage
+  }
 
   const url = buildUrl(baseUrl, path, query);
 
