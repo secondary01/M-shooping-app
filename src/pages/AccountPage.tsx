@@ -141,7 +141,7 @@ export default function AccountPage() {
     );
   }
 
-  // Not authenticated — show login prompt
+  // Not authenticated — redirect to auth
   if (!isAuthenticated || !user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
@@ -153,10 +153,10 @@ export default function AccountPage() {
           Sign in to view your session, wallet, orders, and account settings.
         </p>
         <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/auth?returnTo=/dashboard/account")}
           className="mt-6 bg-foreground text-background"
         >
-          Go to Home
+          Sign In
         </Button>
       </div>
     );

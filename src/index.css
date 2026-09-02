@@ -42,40 +42,56 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Premium Dark Theme — blue-gray tints for depth */
+/* Meesho-inspired Dark Theme — magenta/pink brand colors */
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.09 0.005 260);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.13 0.005 260);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.13 0.005 260);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.97 0 0);
-  --primary-foreground: oklch(0.13 0.005 260);
-  --secondary: oklch(0.16 0.005 260);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.16 0.005 260);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.16 0.005 260);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.65 0.2 25);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.45 0.01 260);
-  --chart-1: oklch(0.65 0.15 250);
-  --chart-2: oklch(0.7 0.14 160);
-  --chart-3: oklch(0.75 0.15 75);
-  --chart-4: oklch(0.65 0.2 310);
-  --chart-5: oklch(0.65 0.18 15);
-  --sidebar: oklch(0.11 0.005 260);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.65 0.15 250);
-  --sidebar-primary-foreground: oklch(0.97 0 0);
-  --sidebar-accent: oklch(0.16 0.005 260);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.45 0.01 260);
+  --background: #0a0a0f;
+  --foreground: #f8f8ff;
+  --card: #131318;
+  --card-foreground: #f8f8ff;
+  --popover: #131318;
+  --popover-foreground: #f8f8ff;
+  --primary: #9F2089;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a22;
+  --secondary-foreground: #f8f8ff;
+  --muted: #1a1a22;
+  --muted-foreground: #8B8BA3;
+  --accent: #D9A6D0;
+  --accent-foreground: #0a0a0f;
+  --destructive: #E11900;
+  --border: rgba(255,255,255,0.08);
+  --input: rgba(255,255,255,0.10);
+  --ring: #9F2089;
+  --chart-1: #9F2089;
+  --chart-2: #038D63;
+  --chart-3: #F4B619;
+  --chart-4: #EE7212;
+  --chart-5: #5585f8;
+  --sidebar: #0e0e14;
+  --sidebar-foreground: #f8f8ff;
+  --sidebar-primary: #9F2089;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1a22;
+  --sidebar-accent-foreground: #f8f8ff;
+  --sidebar-border: rgba(255,255,255,0.08);
+  --sidebar-ring: #9F2089;
+  /* Meesho design tokens */
+  --meesho-pink: #9F2089;
+  --meesho-pink-light: #D9A6D0;
+  --meesho-pink-bg: #FFE7FB;
+  --meesho-green: #038D63;
+  --meesho-red: #E11900;
+  --meesho-yellow: #F4B619;
+  --meesho-orange: #EE7212;
+  --meesho-blue: #5585f8;
+  --meesho-grey-base: #353543;
+  --meesho-grey-t1: #616173;
+  --meesho-shadow-card: 0px 2px 4px rgba(34, 34, 34, 0.12), 0px 0px 1px rgba(34, 34, 34, 0.12);
+  --meesho-shadow-navbar: 0px 1px 4px rgba(51, 51, 51, 0.12);
+  --meesho-radius-button: 4px;
+  --meesho-radius-card: 8px;
+  --meesho-radius-pill: 16px;
 }
 
 @layer base {
@@ -105,8 +121,8 @@
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.65 0.15 250 / 0%); }
-  50% { box-shadow: 0 0 20px 2px oklch(0.65 0.15 250 / 15%); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(159, 32, 137, 0%); }
+  50% { box-shadow: 0 0 20px 2px rgba(159, 32, 137, 15%); }
 }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -150,7 +166,7 @@
   border: 1px solid oklch(1 0 0 / 8%);
 }
 
-/* Premium gradient borders */
+/* Meesho gradient borders */
 .gradient-border {
   position: relative;
 }
@@ -160,7 +176,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, oklch(0.65 0.15 250 / 30%), oklch(0.7 0.14 160 / 10%), transparent);
+  background: linear-gradient(135deg, rgba(159, 32, 137, 0.4), rgba(217, 166, 208, 0.15), transparent);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -176,4 +192,105 @@
   opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   pointer-events: none;
+}
+
+/* ─── Meesho Design System ─────────────────────────────── */
+
+/* Ripple effect on buttons (from Meesho's styled-components) */
+.meesho-btn {
+  background-position: center;
+  transition: background 0.8s;
+  border-radius: var(--meesho-radius-button);
+}
+.meesho-btn:hover {
+  background: radial-gradient(circle, transparent 1%, var(--meesho-pink) 1%) center/15000%;
+}
+.meesho-btn:active {
+  background-color: var(--meesho-pink);
+  background-size: 100%;
+  transition: background 0s;
+}
+
+/* Step progress indicator */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+.step-indicator .step {
+  flex: 1;
+  height: 3px;
+  background: var(--meesho-grey-base);
+  transition: background 0.3s;
+}
+.step-indicator .step.active {
+  background: var(--meesho-pink);
+}
+.step-indicator .step.completed {
+  background: var(--meesho-green);
+}
+
+/* Meesho card shadow */
+.meesho-card {
+  box-shadow: var(--meesho-shadow-card);
+  border-radius: var(--meesho-radius-card);
+}
+
+/* Meesho pill badge */
+.meesho-pill {
+  border-radius: var(--meesho-radius-pill);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Meesho price tag */
+.meesho-price {
+  font-weight: 700;
+  background: var(--meesho-pink);
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--meesho-radius-button);
+  font-size: 13px;
+}
+
+/* Strike-through price */
+.meesho-mrp {
+  text-decoration: line-through;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+/* Discount badge */
+.meesho-discount {
+  color: var(--meesho-green);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Trust badges row */
+.trust-badges {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 12px 0;
+}
+.trust-badges .badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+/* Loading shimmer for skeletons */
+.skeleton {
+  background: linear-gradient(90deg, var(--muted) 0%, rgba(255,255,255,0.05) 50%, var(--muted) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--meesho-radius-card);
 }
