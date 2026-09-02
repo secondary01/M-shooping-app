@@ -29,7 +29,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const {
     isLoading: authLoading,
     isAuthenticated,
-    signIn,
+    sendOtp,
+    verifyOtp,
+    signInAsGuest,
   } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -45,6 +47,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
   const [resendTimer, setResendTimer] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -74,7 +77,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   }, [resendTimer]);
 
   // ─── Derived state ─────────────────────────────────────────
-  const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
+  const fullPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
   const displayPhone = `+91 ${phone}`;
   const isValidPhone = phone.length === 10 && /^[6-9]\d{9}$/.test(phone);
 
@@ -92,14 +95,17 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setSuccess(null);
 
     try {
-      // Send OTP via phone-otp Convex auth provider
-      const formData = new FormData();
-      formData.set("email", formattedPhone); // provider uses 'email' field as identifier
-      await signIn("phone-otp", formData);
-
-      setSuccess(`OTP sent to ${displayPhone}`);
-      setStep("otp-sent");
-      setResendTimer(30);
+      const response = await sendOtp(fullPhone);
+      if (response.success) {
+        setSuccess(`OTP sent to ${displayPhone}`);
+        setStep("otp-sent");
+        setResendTimer(30);
+        if (response.sessionId) {
+          setSessionId(response.sessionId);
+        }
+      } else {
+        setError(response.message || "Failed to send OTP");
+      }
     } catch (err) {
       console.error("[Auth] Send OTP failed:", err);
       setError(
@@ -122,17 +128,16 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setStep("verifying");
 
     try {
-      // Verify OTP via phone-otp Convex auth provider
-      const formData = new FormData();
-      formData.set("email", formattedPhone); // provider identifier
-      formData.set("code", otp);
-      await signIn("phone-otp", formData);
-
-      // Success — show success state briefly then redirect
-      setStep("success");
-      setSuccess("Phone verified successfully!");
-
-      // The useEffect watching isAuthenticated will handle redirect
+      const response = await verifyOtp(fullPhone, otp, sessionId);
+      if (response.success) {
+        setStep("success");
+        setSuccess("Phone verified successfully!");
+        // Redirect will happen via useEffect when isAuthenticated becomes true
+      } else {
+        setError(response.message || "Invalid OTP. Please check and try again.");
+        setStep("otp-sent");
+        setOtp("");
+      }
     } catch (err) {
       console.error("[Auth] Verify OTP failed:", err);
       setError(
@@ -156,12 +161,16 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setSuccess(null);
 
     try {
-      const formData = new FormData();
-      formData.set("email", formattedPhone);
-      await signIn("phone-otp", formData);
-
-      setSuccess(`New OTP sent to ${displayPhone}`);
-      setResendTimer(30);
+      const response = await sendOtp(fullPhone);
+      if (response.success) {
+        setSuccess(`New OTP sent to ${displayPhone}`);
+        setResendTimer(30);
+        if (response.sessionId) {
+          setSessionId(response.sessionId);
+        }
+      } else {
+        setError(response.message || "Failed to resend OTP");
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to resend OTP.",
@@ -176,8 +185,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setIsLoading(true);
     setError(null);
     try {
-      await signIn("anonymous");
-      // useEffect will handle redirect
+      signInAsGuest();
+      // Redirect will happen via useEffect when isAuthenticated becomes true
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to sign in as guest.",
@@ -192,6 +201,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setOtp("");
     setError(null);
     setSuccess(null);
+    setSessionId(undefined);
   };
 
   // ─── Already authenticated — redirect immediately ─────────
