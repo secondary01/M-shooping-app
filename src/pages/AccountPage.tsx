@@ -1,11 +1,14 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
-import { LogIn, User } from "lucide-react";
+import { LogIn, User, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function AccountPage() {
   const { isAuthenticated, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isAuthenticated || !user) {
     return (
@@ -27,9 +30,16 @@ export default function AccountPage() {
     );
   }
 
-  const handleSignOut = () => {
-    signOut();
-    navigate("/");
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    setError(null);
+    try {
+      await signOut();
+      navigate("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to sign out");
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -64,14 +74,28 @@ export default function AccountPage() {
           </div>
         </div>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-sm text-red-400 text-center">
+            {error}
+          </div>
+        )}
+
         <Button
           onClick={handleSignOut}
           variant="outline"
-          className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
+          className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all"
+          disabled={isSigningOut}
         >
-          Sign Out
+          {isSigningOut ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing out...
+            </>
+          ) : (
+            "Sign Out"
+          )}
         </Button>
       </div>
     </div>
   );
-}
+    }
